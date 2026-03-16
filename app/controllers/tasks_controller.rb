@@ -2,7 +2,7 @@ class TasksController < ApplicationController
   # GET /tasks
   def index
     tasks = Task.all
-    render json: tasks
+    render json: tasks.as_json(only: [:id, :title, :done])
   end
 
   # GET /tasks/:id
