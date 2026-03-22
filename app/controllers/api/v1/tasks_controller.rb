@@ -15,7 +15,8 @@ module Api
 
       # POST /tasks
       def create
-        task = Task.new(task_params)
+        user = User.find(params[:user_id])
+        task = user.tasks.new(task_params)
         if task.save
           render json: task, status: :created
         else
