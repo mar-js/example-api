@@ -1,22 +1,24 @@
 module Api
   module V1
     class TasksController < ApplicationController
-      # GET /tasks
+      before_action :authenticate_user
+      before_action :set_user
+      before_action :set_task, only: [:show, :update, :destroy]
+
+        # GET /api/v1/users/:user_id/tasks
       def index
-        tasks = Task.all
+        tasks = @user.tasks
         render json: tasks
       end
 
-      # GET /tasks/:id
+      # GET /api/v1/users/:user_id/tasks/:task_id
       def show
-        task = Task.find(params[:id])
-        render json: task
+        render json: task @task
       end
 
-      # POST /tasks
+      # POST /api/v1/users/:user_id/tasks
       def create
-        user = User.find(params[:user_id])
-        task = user.tasks.new(task_params)
+        task = @user.tasks.new(task_params)
         if task.save
           render json: task, status: :created
         else
@@ -24,24 +26,30 @@ module Api
         end
       end
 
-      # PATCH/PUT /task/:id
+      # PATCH/PUT /api/v1/users/:user_id/tasks/:task_id
       def update
-        task = Task.find(params[:id])
-        if task.update(task_params)
+        if @task.update(task_params)
           render json: task
         else
           render json: task.errors, status: :unprocessable_entity
         end
       end
 
-      # DELETE /tasks/:id
+      # DELETE /api/v1/users/:user_id/tasks/:task_id
       def destroy
-        task = Task.find(params[:id])
-        task.destroy
+        @task.destroy
         head :no_content
       end
 
       private
+
+      def set_user
+        @user = User.find(params[:user_id])
+      end
+
+      def set_task
+        @task = @user.tasks.find(params[:id])
+      end
 
       def task_params
         params.require(:task).permit(:title, :done)
